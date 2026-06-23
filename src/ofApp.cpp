@@ -3,13 +3,14 @@
 
 using namespace std;
 
-// implement YOUR logic here ----------------------------------
+// SHAPES CONSTRUCTIONS ------------------------------------------------------------------------------------------------------
+
+// Sphere (Vec3 center, double radius, ofColor color)
 
 
-//-------------------------------------------------------------
 void ofApp::setup() {
 	
-	// Raytracing Settings ------------------------------------
+	// RAYTRACING SETTINGS ---------------------------------------------------------------------------------------------------
 	
 	// number of pixels: w x h
 	w = 640;
@@ -18,53 +19,74 @@ void ofApp::setup() {
 	// where our rays start on the perspective view
 	viewpoint = {0, 0, 1};
 	
+	// Background color
+	Background_color = ofColor(146, 219, 212);
+	
 	// screen ranges for x and y
 	vector<float> range_x = {-2, 2};
 	vector<float> range_y = {-1.5, 1.5};
 	
 	// camera: parallel = false, perspective = true
-	Camera cam(viewpoint, w, h, range_x, range_y, true);
+	cam = Camera(viewpoint, w, h, range_x, range_y, true);
 
-	//---------------------------------------------------------
+	// SHAPES IN SCENE -------------------------------------------------------------------------------------------------------
 	
-	// geometric shapes ---------------------------------------
-	Vec3 center(0, 0, -2);
-	Sphere sphere1(center, 2);
-	// --------------------------------------------------------
+	scene.push_back(new Sphere(Vec3(1, 1.2, -3), 1, ofColor(194, 52, 222)));
+	scene.push_back(new Sphere(Vec3(0, 0, -7), 3, ofColor(240, 145, 35)));
 	
 	colorPixels.allocate(w, h, OF_PIXELS_RGB);
+	texColor.allocate(colorPixels);
 	
-	// color pixels, use x and y to control red and green
-	// se recorre cada pixel en pantalla y se colorea de algun color
-	for (int y = 0; y < h; y++) {
-		for (int x = 0; x < w; x++) {
-			// colorPixels.setColor(x, y, ofColor(x*255/w, y*255/w, 100));
-			colorPixels.setColor(x, y, ofColor(50, 168, 82));
+	// Trace all shapes for the first time
+	traceAll();
+}
+
+void ofApp::traceAll(){
+	// ejecution time measurement
+	auto start = chrono::high_resolution_clock::now();
+	
+	// we go trought every pixel in screen (x, y)
+	for(int y = 0; y < h; y++){
+		for(int x = 0; x < w; x++){
+			// we make a ray for every pixel
+			Ray actual_ray = cam.ray_tracing(x, y);
 			
-			// we trace a ray for every pixel in the screen
-			Ray actual_r = cam.ray_tracing(x, y);
 			
-			// t_sphere > 0 if it hit something, -1 if not
-			double t_sphere = sphere1.hit_sphere(actual_r);
+			HitRecord hrec;
+			HitRecord closest_hit;
+			double t_max = INFINITY;
+			double t_min = 0.001;
+			bool hit_object = false;
 			
-			// we hit the sphere
-			if(t_sphere > 0){
-				Vec3 t_hit = actual_r.evaluate(t_sphere);
-				colorPixels.setColor(x, y, ofColor(43, 78, 194));
+			for(auto object : scene){
+				// if we hit the object in pixel (x, y)
+				if(object->hit(actual_ray, t_min, t_max, hrec)){
+					hit_object = true;
+					// more closer shape will be our limit for t, we dont care about shapes behind
+					t_max = hrec.t;
+					closest_hit = hrec;
+				}
+			}
+			
+			if(hit_object){
+				// if theres an object, we color the pixel with the shape color
+				colorPixels.setColor(x, y, closest_hit.color);
+			}
+			else{
+				// if there isnt an object, we color the pixel as the background
+				colorPixels.setColor(x, y, Background_color);
 			}
 		}
 	}
-	texColor.allocate(colorPixels);
+	
+	texColor.loadData(colorPixels);
+	
+	// we end time measurement
+	auto end = chrono::high_resolution_clock::now();
+	chrono::duration<double> diff = end - start;
+	cout << "Render time: " << diff.count() << " seconds" << endl;
 }
 
-/*
-inline void color_hit(Ray ra, double t, int pix_x, int pix_y, int R, int G, int B){
-	if(t > 0){
-		Vec3 t_hit = ra.evaluate(t);
-		colorPixels.setColor(pix_x, pix_y, ofColor(R, G, B));
-	}
-}
-*/
 
 //--------------------------------------------------------------
 void ofApp::update() {
@@ -75,6 +97,14 @@ void ofApp::update() {
 void ofApp::draw() {
 	ofSetHexColor(0xffffff);
 	texColor.draw(0, 0, w, h);
+}
+
+//--------------------------------------------------------------
+void ofApp::exit() {
+	for (auto object : scene) {
+		delete object;
+	}
+	scene.clear();
 }
 
 //--------------------------------------------------------------

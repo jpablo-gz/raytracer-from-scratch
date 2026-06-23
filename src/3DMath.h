@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofApp.h"
 #include <vector>
 
 // 3D Vector:
@@ -57,7 +56,7 @@ public:
 	Vec3 e;
 	Vec3 d;
 	
-	// is_d(is direction?) == false --> normalize vector e --> s to keep perspective
+	// direction == false --> normalize vector e --> s to keep perspective
 	inline Ray(Vec3 origin, Vec3 sd, bool direction){
 		e = origin;
 		if(direction){
@@ -65,10 +64,10 @@ public:
 		} else{
 			d = vec3_normal(vec3_subtraction(sd, e));
 		}
-	} // e(origin), d(vector3_normal(vector3_subtraction(s, origin)));
+	}
 	
 	// we return the point of the ray in t
-	inline Vec3 evaluate(double t){
+	inline Vec3 evaluate(double t) const{
 		// p(t) = e + td
 		Vec3 p_t = vec3_sum(e, vec3_product(d, t));
 		return p_t;
@@ -97,6 +96,9 @@ struct Camera{
 	
 	// Parallel = false / Perspective = true
 	bool p_mode;
+	
+	// empty constructor
+	Camera() = default;
 	
 	// constructor
 	Camera(Vec3 view_point, int width, int heigth, vector<float> rangeX, vector<float> rangeY, bool perspective_on = false){
@@ -147,40 +149,72 @@ struct Camera{
 };
 
 // 3D Shapes -----------------------------------------------------------
-struct Sphere{
+struct HitRecord{
 public:
-	// parameters: sphere center ----> c, radius ---> r
+	double t; // "point/distance" where a ray intersects with and object
+	Vec3 p;   // exact 3d point where we hit the object
+	Vec3 normal; // used for shadows, normal.ligth will tell us where does the sphere recieves ligth
+	ofColor color; // color of the object we hit
+};
+
+class Object3D{
+public:
+	// destructor
+	virtual ~Object3D(){}
+	
+	// we calculate intersection: every shape calculates its own way
+	// return: true if ray intersects object, false if not
+	virtual bool hit(const Ray &r, double t_min, double t_max, HitRecord& hr) const = 0;
+};
+
+class Sphere : public Object3D {
+public:
+	// parameters: sphere center ----> c, radius ---> r, color ----> rgb
 	Vec3 c;
 	double r;
+	ofColor rgb;
 	
 	// constructor
-	Sphere(Vec3 center, double radius): c(center), r(radius) {}
+	Sphere(Vec3 center, double radius, ofColor color): c(center), r(radius), rgb(color) {}
 	
 	// parameters: Ray: origin --> e, direction ---> d
-	inline double hit_sphere(Ray rd){
+	virtual bool hit(const Ray &ra, double t_min, double t_max, HitRecord& hr) const override{
 		
 		// components for general formula
-		double A = vec3_dotproduct(rd.d, rd.d);
-		double B = (vec3_dotproduct(rd.d, vec3_subtraction(rd.e, c)))*2;
-		double C = vec3_dotproduct(vec3_subtraction(rd.e, c), vec3_subtraction(rd.e, c)) - (r*r);
+		double A = vec3_dotproduct(ra.d, ra.d);
+		double B = (vec3_dotproduct(ra.d, vec3_subtraction(ra.e, c)))*2;
+		double C = vec3_dotproduct(vec3_subtraction(ra.e, c), vec3_subtraction(ra.e, c)) - (r*r);
 		
 		double discriminant = (B*B)-(4*A*C);
 		
 		// if discriminant is < 0, then we dont hit the sphere
 		if(discriminant < 0){
-			return -1;
+			return false;
+		}
 		
-		// if discriminant is 0 or greater, we hit
-		} else {
-			// viewpoint is outside the sphere
-			double t = (-B - sqrt(discriminant)) / (2.0 * A);
-			if(t > 0) return t;
-			
+		// if discriminant is 0 or greater, that means we hit the sphere
+		
+		// viewpoint is outside the sphere
+		double t = (-B - sqrt(discriminant)) / (2.0 * A);
+		
+		if(t < t_min or t > t_max){
 			// viewpoint is inside the sphere
 			t = (-B + sqrt(discriminant)) / (2.0 * A);
-			if(t > 0) return t;
+			if(t < t_min or t > t_max){
+				// sphere isnt in a visible range
+				return false;
+			}
 		}
-		// sphere is behind viewpoint (we ignore)
-		return -1;
+		
+		// give data to HitRecord
+		hr.t = t;
+		hr.p = ra.evaluate(t);
+		// n = (p - c)/Radius           Radius == Magnitude(p - c)
+		hr.normal = vec3_product(vec3_subtraction(hr.p, c), 1.0/r);
+		hr.color = rgb;
+		
+		// hit
+		return true;
+		
 	}
 };

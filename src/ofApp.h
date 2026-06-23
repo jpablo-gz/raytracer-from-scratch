@@ -7,13 +7,14 @@
 // declare YOUR classes here -------------------------------
 
 class ofApp : public ofBaseApp{
-	
 	public:
-		
+
 		void setup();
 		void update();
 		void draw();
-		
+		void traceAll();
+		void exit();
+
 		void keyPressed(int key);
 		void keyReleased(int key);
 		void mouseMoved(int x, int y );
@@ -24,12 +25,15 @@ class ofApp : public ofBaseApp{
 		void mouseExited(int x, int y);
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
-		void gotMessage(ofMessage msg);		
-		
-		ofTexture 		texColor;
+		void gotMessage(ofMessage msg);
 
-		int 			w, h;
-		Vec3            viewpoint;
-		
-		ofPixels colorPixels;		
+		ofTexture 			texColor;
+		ofPixels 			colorPixels;
+
+		int 				w, h;
+		Vec3				viewpoint;
+		Camera				cam;
+		vector<Object3D*> 	scene;
+		ofColor				Background_color;
+
 };
