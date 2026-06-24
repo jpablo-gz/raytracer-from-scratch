@@ -148,7 +148,8 @@ struct Camera{
 	}
 };
 
-// 3D Shapes -----------------------------------------------------------
+// 3D OBJECTS -----------------------------------------------------------------------------------------------------------------------
+
 struct HitRecord{
 public:
 	double t; // "point/distance" where a ray intersects with and object
@@ -160,11 +161,49 @@ public:
 class Object3D{
 public:
 	// destructor
-	virtual ~Object3D(){}
+	inline virtual ~Object3D(){}
 	
 	// we calculate intersection: every shape calculates its own way
 	// return: true if ray intersects object, false if not
 	virtual bool hit(const Ray &r, double t_min, double t_max, HitRecord& hr) const = 0;
+};
+
+// 3D SHAPES ------------------------------------------------------------------------------------------------------------------------
+
+class Plane : public Object3D{
+public:
+	Vec3 a; 			// vector where our plane starts
+	Vec3 normal; 		// normal: viewing direction of our plane
+	ofColor rgb; 		// color of our plane
+	
+	// constructor
+	inline Plane(Vec3 start_point, Vec3 normal_direction, ofColor color): a(start_point), normal(normal_direction), rgb(color) {}
+	
+	// parameters: Ray: origin --> e, direction ---> d
+	virtual bool hit(const Ray &ra, double t_min, double t_max, HitRecord& hr) const override{
+		
+		// t = (a - e).n / d.n    ---> A = (a - e).n, B = d.n
+		double A = vec3_dotproduct(vec3_subtraction(a, ra.e), normal);
+		double B = vec3_dotproduct(ra.d, normal);
+		
+		// if B = 0, the ray its parallel to the plane (they never intersect)
+		if(abs(B) > 1e-6){ // we use 1e-6 cause some non 0 but close values can also cause errors
+			double t = A/B;
+	
+			// t is visible
+			if(t > t_min and t < t_max){
+				
+				// give data to HitRecord
+				hr.t = t;
+				hr.p = ra.evaluate(t);
+				hr.normal = vec3_normal(normal);
+				hr.color = rgb;
+			
+				return true;
+			}
+		}
+		return false;
+	}
 };
 
 class Sphere : public Object3D {
@@ -175,7 +214,7 @@ public:
 	ofColor rgb;
 	
 	// constructor
-	Sphere(Vec3 center, double radius, ofColor color): c(center), r(radius), rgb(color) {}
+	inline Sphere(Vec3 center, double radius, ofColor color): c(center), r(radius), rgb(color) {}
 	
 	// parameters: Ray: origin --> e, direction ---> d
 	virtual bool hit(const Ray &ra, double t_min, double t_max, HitRecord& hr) const override{
@@ -218,3 +257,81 @@ public:
 		
 	}
 };
+
+class Ellipsoid : public Object3D{
+public:
+	Vec3 center; 	// center of the elipsoid
+	Vec3 axes;		// (a, b, c): a = length in x, b = length in y, c = length in z
+	// if(a = b = c) --> Sphere
+	ofColor rgb; 	// color of the ellipsoid
+	
+	// constructor
+	inline Ellipsoid(Vec3 e_center, Vec3 l_xyz, ofColor color) : center(e_center), rgb(color) {
+		// axes cant have zeros
+		if(l_xyz.x == 0) l_xyz.x = 0.0001;
+		if(l_xyz.y == 0) l_xyz.y = 0.0001;
+		if(l_xyz.z == 0) l_xyz.z = 0.0001;
+		
+		axes = l_xyz;
+	}
+	
+	// parameters: Ray: origin --> e, direction ---> d
+	virtual bool hit(const Ray &ra, double t_min, double t_max, HitRecord& hr) const override{
+		
+		// axes cant have zeros
+		if(axes.x < 1e-6 or axes.y < 1e-6 or axes.z < 1e-6){
+			return false;
+		}
+		
+		Vec3 w = vec3_subtraction(ra.e, center);
+		Vec3 dr = ra.d;
+		
+		double a2 = 1.0/(axes.x*axes.x);
+		double b2 = 1.0/(axes.y*axes.y);
+		double c2 = 1.0/(axes.z*axes.z);
+		
+		double A = (dr.x*dr.x)*a2 + (dr.y*dr.y)*b2 + (dr.z*dr.z)*c2;
+		double B = 2*((w.x*dr.x)*a2 + (w.y*dr.y)*b2 + (w.z*dr.z)*c2);
+		double C = (w.x*w.x)*a2 + (w.y*w.y)*b2 + (w.z*w.z)*c2 - 1.0;
+		
+		double discriminant = (B*B)-(4*A*C);
+		
+		// if discriminant is < 0, then we dont hit the ellipsoid
+		if(discriminant < 0){
+			return false;
+		}
+		
+		// if discriminant is 0 or greater, that means we hit the ellipsoid
+		
+		// viewpoint is outside the ellipsoid
+		double t = (-B - sqrt(discriminant)) / (2.0 * A);
+		
+		if(t < t_min or t > t_max){
+			// viewpoint is inside the ellipsoid
+			t = (-B + sqrt(discriminant)) / (2.0 * A);
+			if(t < t_min or t > t_max){
+				// ellipsoid isnt in a visible range
+				return false;
+			}
+		}
+		
+		// give data to HitRecord
+		hr.t = t;
+		hr.color = rgb;
+		hr.p = ra.evaluate(t);
+		
+		// n = gradient of function
+		Vec3 gradient;
+		
+		gradient.x = (hr.p.x - center.x)*a2;
+		gradient.y = (hr.p.y - center.y)*b2;
+		gradient.z = (hr.p.z - center.z)*c2;
+		
+		hr.normal = vec3_normal(gradient);
+		
+		// hit
+		return true;
+	}
+};
+
+class Triangle : public Object3D{};

@@ -5,8 +5,9 @@ using namespace std;
 
 // SHAPES CONSTRUCTIONS ------------------------------------------------------------------------------------------------------
 
+// Plane (Vec3 start_point, Vec3 normal_direction, ofColor color)
 // Sphere (Vec3 center, double radius, ofColor color)
-
+// Ellipsoid (Vec3 center, Vec3 lengths_abc, ofColor color)
 
 void ofApp::setup() {
 	
@@ -31,8 +32,10 @@ void ofApp::setup() {
 
 	// SHAPES IN SCENE -------------------------------------------------------------------------------------------------------
 	
+	scene.push_back(new Plane(Vec3(0, -1.4, 0), Vec3(0, 1, 0), ofColor(99, 99, 99)));
 	scene.push_back(new Sphere(Vec3(1, 1.2, -3), 1, ofColor(194, 52, 222)));
 	scene.push_back(new Sphere(Vec3(0, 0, -7), 3, ofColor(240, 145, 35)));
+	scene.push_back(new Ellipsoid(Vec3(-5, 0, -4), Vec3(2, 3, 1), ofColor(96, 179, 17)));
 	
 	colorPixels.allocate(w, h, OF_PIXELS_RGB);
 	texColor.allocate(colorPixels);
@@ -50,7 +53,6 @@ void ofApp::traceAll(){
 		for(int x = 0; x < w; x++){
 			// we make a ray for every pixel
 			Ray actual_ray = cam.ray_tracing(x, y);
-			
 			
 			HitRecord hrec;
 			HitRecord closest_hit;
