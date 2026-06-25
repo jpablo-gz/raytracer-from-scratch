@@ -8,6 +8,7 @@ using namespace std;
 // Plane (Vec3 start_point, Vec3 normal_direction, ofColor color)
 // Sphere (Vec3 center, double radius, ofColor color)
 // Ellipsoid (Vec3 center, Vec3 lengths_abc, ofColor color)
+// Cube (Vec3 center, double lenght x, y, z, ofColor color)
 
 void ofApp::setup() {
 	
@@ -32,10 +33,24 @@ void ofApp::setup() {
 
 	// SHAPES IN SCENE -------------------------------------------------------------------------------------------------------
 	
-	scene.push_back(new Plane(Vec3(0, -1.4, 0), Vec3(0, 1, 0), ofColor(99, 99, 99)));
-	scene.push_back(new Sphere(Vec3(1, 1.2, -3), 1, ofColor(194, 52, 222)));
-	scene.push_back(new Sphere(Vec3(0, 0, -7), 3, ofColor(240, 145, 35)));
-	scene.push_back(new Ellipsoid(Vec3(-5, 0, -4), Vec3(2, 3, 1), ofColor(96, 179, 17)));
+	// Plane: Gray (0.5, 0.5, 0.5) in y = -1.4
+	scene.push_back(new Plane(Vec3(0, -1.4, 0), Vec3(0, 1, 0), ofColor(128, 128, 128)));
+
+	// Sphere: Red (1, 0, 0) in z < 0 and inside range x:[-2,2], y:[-1.5,1.5]
+	scene.push_back(new Sphere(Vec3(1.0, 0.5, -2.0), 1.0, ofColor(255, 0, 0)));
+
+	// Cube (Extra): Green (0, 1, 0) in z < 0 and inside range x:[-2,2], y:[-1.5,1.5]
+	scene.push_back(new Cube(Vec3(-1.2, 0.0, -3.0), 1.5, 1.5, 1.5, ofColor(0, 255, 0)));
+
+	// Ellipsoid: Blue (0, 0, 1) in z > 0 between z=1 and view plane z = 0
+	scene.push_back(new Ellipsoid(Vec3(0, 0.4, 0.4), Vec3(0.2, 0.1, 0.3), ofColor(0, 0, 255)));
+	
+	/*
+	scene.push_back(new Plane(Vec3(0, -1.4, 0), Vec3(0, 1, 0), ofColor(0.5, 0.5, 0.5)));
+	scene.push_back(new Sphere(Vec3(1, 1.2, -3), 1.0, ofColor(1, 0, 0)));
+	scene.push_back(new Ellipsoid(Vec3(-5, 0, -4), Vec3(2, 3, 1), ofColor(0, 1, 0)));
+	scene.push_back(new Cube(Vec3(3.5, 3, -3), 2.0, 2.0, 2.0, ofColor(0, 0, 1)));
+	 */
 	
 	colorPixels.allocate(w, h, OF_PIXELS_RGB);
 	texColor.allocate(colorPixels);

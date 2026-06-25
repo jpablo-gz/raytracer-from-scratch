@@ -12,6 +12,13 @@ public:
 	// constructor
 	inline Vec3(double nx = 0, double ny = 0, double nz = 0): x(nx), y(ny), z(nz){}
 	
+	// for iteration ---> used on cube
+	const double& operator[](int index) const{
+		if (index == 0) return x;
+		if (index == 1) return y;
+		return z;
+	}
+	
 	// magnitude:
 	inline double magnitude(){
 		return sqrt(x*x + y*y + z*z);
@@ -334,4 +341,84 @@ public:
 	}
 };
 
-class Triangle : public Object3D{};
+class Cube : public Object3D{
+public:
+	Vec3 center;
+	ofColor rgb;
+	// cube sizes:
+	double l_x;
+	double l_y;
+	double l_z;
+	Vec3 min_p, max_p;
+	
+	inline Cube(Vec3 c_center, double x, double y, double z, ofColor color): center(c_center), l_x(x), l_y(y), l_z(z), rgb(color){
+		// turn lengths into min/max points
+		min_p = vec3_subtraction(center, Vec3(l_x/2.0, l_y/2.0, l_z/2.0));
+		max_p = vec3_sum(center, Vec3(l_x/2.0, l_y/2.0, l_z/2.0));
+	}
+	
+	// parameters: Ray: origin --> e, direction ---> d
+	virtual bool hit(const Ray &ra, double t_min, double t_max, HitRecord& hr) const override{
+		
+		double t_near = -INFINITY;
+		double t_far = INFINITY;
+		
+		// helps us know where we hit so we can know the normal
+		int hit_axis = 0;
+		double d_axis;
+		
+		double d, e, min, max;
+		// check intersections in x(0), y(1) or z(2)
+		for(int i = 0; i < 3; i++){
+			d = ra.d[i];
+			e = ra.e[i];
+			min = min_p[i];
+			max = max_p[i];
+			
+			double div_d = 1.0/d; // if(d == 0.0) ---> div_d = inf
+			
+			// point where ray "enters" the cube
+			double t0 = (min - e)*div_d;
+			// point where ray "leaves" the cube
+			double t1 = (max - e)*div_d;
+			
+			// we are "inside" or "infront" of the cube
+			if(div_d < 0.0) swap(t0, t1);
+			
+			// we look for the values of t0, t1: where the rays hit
+			if(t0 > t_near){
+				t_near = t0;
+				hit_axis = i;
+			}
+			
+			if(t1 < t_far){
+				t_far = t1;
+			}
+			
+			// ray doesnt hit the cube
+			if(t_near > t_far) return false;
+		}
+		
+		// cube isnt in the visible range
+		if(t_near < t_min or t_near > t_max) return false;
+		
+		// give data to HitRecord
+		hr.t = t_near;
+		hr.p = ra.evaluate(t_near);
+		hr.color = rgb;
+		
+		// normal depends on the plane where the ray hit
+		hr.normal = Vec3(0, 0, 0);
+		if (ra.d[hit_axis] < 0) {
+			if (hit_axis == 0) hr.normal.x = 1;
+			else if (hit_axis == 1) hr.normal.y = 1;
+			else hr.normal.z = 1;
+		} else {
+			if (hit_axis == 0) hr.normal.x = -1;
+			else if (hit_axis == 1) hr.normal.y = -1;
+			else hr.normal.z = -1;
+		}
+
+		return true;
+	}
+};
