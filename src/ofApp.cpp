@@ -189,7 +189,8 @@ void ofApp::exit() {
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
 	// CAMERA --------------------------------------------------
-	const double c_step = 0.1;
+	const double p_step = 0.1; // pan steps
+	const double o_step = 2.0; // orbit steps
 	bool cam_changed = false;
 	
 	// toggle between perspective and parallel rays
@@ -199,30 +200,57 @@ void ofApp::keyPressed(int key) {
 		
 		traceAll();
 	}
+	
+	// CAMERA PAN
+	
 	// move up
 	else if (key == 'w') {
-		 cam.e = vec3_sum(cam.e, vec3_product(cam.v_vec, c_step));
-		 cam.target = vec3_sum(cam.target, vec3_product(cam.v_vec, c_step));
+		 cam.e = vec3_sum(cam.e, vec3_product(cam.v_vec, p_step));
+		 cam.target = vec3_sum(cam.target, vec3_product(cam.v_vec, p_step));
 		 cam_changed = true;
 	}
 	// move down
 	else if (key == 's') {
-		cam.e = vec3_sum(cam.e, vec3_product(cam.v_vec, -c_step));
-		cam.target = vec3_sum(cam.target, vec3_product(cam.v_vec, -c_step));
+		cam.e = vec3_sum(cam.e, vec3_product(cam.v_vec, -p_step));
+		cam.target = vec3_sum(cam.target, vec3_product(cam.v_vec, -p_step));
 		cam_changed = true;
 	}
 	// move left
 	else if (key == 'a') {
-		cam.e = vec3_sum(cam.e, vec3_product(cam.u_vec, -c_step));
-		cam.target = vec3_sum(cam.target, vec3_product(cam.u_vec, -c_step));
+		cam.e = vec3_sum(cam.e, vec3_product(cam.u_vec, -p_step));
+		cam.target = vec3_sum(cam.target, vec3_product(cam.u_vec, -p_step));
 		cam_changed = true;
 	}
 	// move right
 	else if (key == 'd') {
-		cam.e = vec3_sum(cam.e, vec3_product(cam.u_vec, c_step));
-		cam.target = vec3_sum(cam.target, vec3_product(cam.u_vec, c_step));
+		cam.e = vec3_sum(cam.e, vec3_product(cam.u_vec, p_step));
+		cam.target = vec3_sum(cam.target, vec3_product(cam.u_vec, p_step));
 		cam_changed = true;
 	}
+	
+	// CAMERA ORBIT
+	
+	// move up
+	else if (key == 'i') {
+		cam.orbit_vertical(-o_step);
+		cam_changed = true;
+	}
+	// move down
+	else if (key == 'k') {
+		cam.orbit_vertical(o_step);
+		cam_changed = true;
+	}
+	// move left
+	else if (key == 'j') {
+		cam.orbit_horizontal(-o_step);
+		cam_changed = true;
+	}
+	// move right
+	else if (key == 'l') {
+		cam.orbit_horizontal(o_step);
+		cam_changed = true;
+	}
+	
 	// reset camera
 	else if (key == 'R') {
 		cam.e = viewpoint;
@@ -273,14 +301,14 @@ void ofApp::keyPressed(int key) {
 		// SCALING
 		
 		// Increase scale
-		else if (key == 'm') {
+		else if (key == 'n') {
 			scene[selectedIdx]->sx += s_step;
 			scene[selectedIdx]->sy += s_step;
 			scene[selectedIdx]->sz += s_step;
 			changed = true;
 		}
 		// Decrease scale
-		else if (key == 'l') {
+		else if (key == 'm') {
 			// scale must stay positive
 			scene[selectedIdx]->sx = max(0.1, scene[selectedIdx]->sx - s_step);
 			scene[selectedIdx]->sy = max(0.1, scene[selectedIdx]->sy - s_step);

@@ -381,6 +381,22 @@ public:
 	}
 };
 
+// CAMERA ---------------------------------------------------------------------------------------------------------------------------
+
+// Rodrigues formula for orbit
+inline Vec3 vec3_rodrigues(const Vec3& v, const Vec3& axis, double angle) {
+	double rad = ofDegToRad(angle);
+	Vec3 a = vec3_normal(axis); // axis must be unitary
+	
+	// v_rod = v*cos(θ) + (a*v)*sin(θ) + a*(a.v)*(1-cos(θ))
+	Vec3 term1 = vec3_product(v, cos(rad));
+	Vec3 term2 = vec3_product(vec3_crossproduct(a, v), sin(rad));
+	Vec3 term3 = vec3_product(a, vec3_dotproduct(a, v) * (1 - cos(rad)));
+	
+	// v_rod
+	return vec3_sum(term1, vec3_sum(term2, term3));
+}
+
 // camera is a struct so we can alternate between parallel and perspective
 struct Camera{
 	Vec3 e; // origin/eye
@@ -456,7 +472,7 @@ struct Camera{
 			// ro = e
 			Vec3 ro = e;
 			// rd = -w + u*u_vec + v*v_vec
-			double d = abs(e.z);
+			double d = vec3_subtraction(e, target).magnitude(); // double d = abs(e.z);
 			Vec3 rd = vec3_sum(vec3_product(vec3_product(w_vec, -1.0), d), vec3_sum(vec3_product(u_vec, u), vec3_product(v_vec, v)));
 						
 			return Ray(ro, rd, true);
@@ -470,6 +486,22 @@ struct Camera{
 			
 			return Ray(ro, rd, true);
 		}
+	}
+	
+	void orbit_horizontal(double angle) {
+		Vec3 relative_eye = vec3_subtraction(e, target);
+		// rotate relative_eye around World_up vector
+		Vec3 rotated = vec3_rodrigues(relative_eye, Vec3(0, 1, 0), angle);
+		e = vec3_sum(target, rotated);
+		updateBasis(); // Recalculate u, v, w
+	}
+
+	void orbit_vertical(double angle) {
+		Vec3 relative_eye = vec3_subtraction(e, target);
+		// rotate relative_eye around local u vector
+		Vec3 rotated = vec3_rodrigues(relative_eye, u_vec, angle);
+		e = vec3_sum(target, rotated);
+		updateBasis(); // Recalculate u, v, w
 	}
 };
 
