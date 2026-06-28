@@ -266,6 +266,23 @@ void ofApp::keyPressed(int key) {
 			changed = true;
 		}
 		
+		
+		// inverse rotation over x
+		else if (key == 'u'){
+			scene[selectedIdx]->rx -= r_steps;
+			changed = true;
+		}
+		// inverse rotation over y
+		else if (key == 'v'){
+			scene[selectedIdx]->ry -= r_steps;
+			changed = true;
+		}
+		// inverse rotation over z
+		else if (key == 'w'){
+			scene[selectedIdx]->rz -= r_steps;
+			changed = true;
+		}
+		
 		// RESET
 		
 		// reset all transformations
