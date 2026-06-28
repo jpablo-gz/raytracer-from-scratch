@@ -475,6 +475,11 @@ public:
 	double rx, ry, rz; // rotation
 	double sx, sy, sz; // scaling
 	
+	// initial values of shape for reset
+	double itx, ity, itz;
+	double irx, iry, irz;
+	double isx, isy, isz;
+	
 	inline Object3D() {
 		tx = ty = tz = 0.0;
 		rx = ry = rz = 0.0;
@@ -486,6 +491,24 @@ public:
 	
 	// destructor
 	inline virtual ~Object3D(){}
+	
+	//save initial state of shape
+	void save_InitialState() {
+		// translation
+		itx = tx;
+		ity = ty;
+		itz = tz;
+		
+		// rotation
+		irx = rx;
+		iry = ry;
+		irz = rz;
+		
+		// scaling
+		isx = sx;
+		isy = sy;
+		isz = sz;
+	}
 	
 	// intersection: every shape calculates its own way
 	// return: true if ray intersects object, false if not
@@ -571,6 +594,7 @@ public:
 		sy = radius;
 		sz = radius;
 		
+		save_InitialState();
 		Transformation();
 	}
 	
@@ -645,6 +669,7 @@ public:
 		sy = l_xyz.y;
 		sz = l_xyz.z;
 		
+		save_InitialState();
 		Transformation();
 	}
 	
@@ -725,6 +750,7 @@ public:
 		min_p = Vec3(-0.5, -0.5, -0.5);
 		max_p = Vec3(0.5, 0.5, 0.5);
 		
+		save_InitialState();
 		Transformation();
 	}
 	

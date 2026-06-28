@@ -188,6 +188,7 @@ void ofApp::exit() {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
+	// CAMERA --------------------------------------------------
 	
 	// toggle between perspective and parallel rays
 	if(key == 'p'){
@@ -197,33 +198,97 @@ void ofApp::keyPressed(int key) {
 		traceAll();
 	}
 	
-	// object translation
+	// object transformations
 	if (selectedIdx != -1) {
-		double step = 0.1;
+		const double t_step = 0.1;  // translation steps
+		const double s_step = 0.1;  // scaling steps
+		const double r_steps = 5.0; // rotation steps
 		bool changed = false;
-
+		
+	// TRANSFORMATIONS -------------------------------------------
+		
+		// TRANSLATION
+		
 		// Move to the left
 		if (key == OF_KEY_LEFT) {
-			scene[selectedIdx]->tx -= step;
+			scene[selectedIdx]->tx -= t_step;
 			changed = true;
 		}
 		// Move to the right
 		else if (key == OF_KEY_RIGHT) {
-			scene[selectedIdx]->tx += step;
+			scene[selectedIdx]->tx += t_step;
 			changed = true;
 		}
 		// Move up
 		else if (key == OF_KEY_UP) {
-			scene[selectedIdx]->ty += step;
+			scene[selectedIdx]->ty += t_step;
 			changed = true;
 		}
-		// Mover down
+		// Move down
 		else if (key == OF_KEY_DOWN) {
-			scene[selectedIdx]->ty -= step;
+			scene[selectedIdx]->ty -= t_step;
 			changed = true;
 		}
 		
-		// if there was a translation (update)
+		// SCALING
+		
+		// Increase scale
+		else if (key == 's') {
+			scene[selectedIdx]->sx += s_step;
+			scene[selectedIdx]->sy += s_step;
+			scene[selectedIdx]->sz += s_step;
+			changed = true;
+		}
+		// Decrease scale
+		else if (key == 'd') {
+			// scale must stay positive
+			scene[selectedIdx]->sx = max(0.1, scene[selectedIdx]->sx - s_step);
+			scene[selectedIdx]->sy = max(0.1, scene[selectedIdx]->sy - s_step);
+			scene[selectedIdx]->sz = max(0.1, scene[selectedIdx]->sz - s_step);
+			changed = true;
+		}
+		
+		// ROTATION
+		
+		// rotation over x
+		else if (key == 'x'){
+			scene[selectedIdx]->rx += r_steps;
+			changed = true;
+		}
+		// rotation over y
+		else if (key == 'y'){
+			scene[selectedIdx]->ry += r_steps;
+			changed = true;
+		}
+		// rotation over z
+		else if (key == 'z'){
+			scene[selectedIdx]->rz += r_steps;
+			changed = true;
+		}
+		
+		// RESET
+		
+		// reset all transformations
+		else if (key == 'r'){
+			// reset translation
+			scene[selectedIdx]->tx = scene[selectedIdx]->itx;
+			scene[selectedIdx]->ty = scene[selectedIdx]->ity;
+			scene[selectedIdx]->tz = scene[selectedIdx]->itz;
+			
+			// reset scaling
+			scene[selectedIdx]->sx = scene[selectedIdx]->isx;
+			scene[selectedIdx]->sy = scene[selectedIdx]->isy;
+			scene[selectedIdx]->sz = scene[selectedIdx]->isz;
+			
+			// reset rotation
+			scene[selectedIdx]->rx = scene[selectedIdx]->irx;
+			scene[selectedIdx]->ry = scene[selectedIdx]->iry;
+			scene[selectedIdx]->rz = scene[selectedIdx]->irz;
+			
+			changed = true;
+		}
+		
+		// update transformations and re-render
 		if (changed) {
 			scene[selectedIdx]->Transformation();
 			traceAll();
