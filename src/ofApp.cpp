@@ -189,6 +189,8 @@ void ofApp::exit() {
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
 	// CAMERA --------------------------------------------------
+	const double c_step = 0.1;
+	bool cam_changed = false;
 	
 	// toggle between perspective and parallel rays
 	if(key == 'p'){
@@ -197,15 +199,53 @@ void ofApp::keyPressed(int key) {
 		
 		traceAll();
 	}
+	// move up
+	else if (key == 'w') {
+		 cam.e = vec3_sum(cam.e, vec3_product(cam.v_vec, c_step));
+		 cam.target = vec3_sum(cam.target, vec3_product(cam.v_vec, c_step));
+		 cam_changed = true;
+	}
+	// move down
+	else if (key == 's') {
+		cam.e = vec3_sum(cam.e, vec3_product(cam.v_vec, -c_step));
+		cam.target = vec3_sum(cam.target, vec3_product(cam.v_vec, -c_step));
+		cam_changed = true;
+	}
+	// move left
+	else if (key == 'a') {
+		cam.e = vec3_sum(cam.e, vec3_product(cam.u_vec, -c_step));
+		cam.target = vec3_sum(cam.target, vec3_product(cam.u_vec, -c_step));
+		cam_changed = true;
+	}
+	// move right
+	else if (key == 'd') {
+		cam.e = vec3_sum(cam.e, vec3_product(cam.u_vec, c_step));
+		cam.target = vec3_sum(cam.target, vec3_product(cam.u_vec, c_step));
+		cam_changed = true;
+	}
+	// reset camera
+	else if (key == 'R') {
+		cam.e = viewpoint;
+		cam.target = Vec3(0, 0, 0);
+		cam.world_up = Vec3(0, 1, 0);
+		cam.updateBasis();
+		traceAll();
+	}
+	
+	// update camera movement
+	 if (cam_changed) {
+		 cam.updateBasis();
+		 traceAll();
+	 }
+	
+	// TRANSFORMATIONS -------------------------------------------
 	
 	// object transformations
 	if (selectedIdx != -1) {
 		const double t_step = 0.1;  // translation steps
 		const double s_step = 0.1;  // scaling steps
-		const double r_steps = 5.0; // rotation steps
+		const double r_step = 5.0; // rotation steps
 		bool changed = false;
-		
-	// TRANSFORMATIONS -------------------------------------------
 		
 		// TRANSLATION
 		
@@ -233,14 +273,14 @@ void ofApp::keyPressed(int key) {
 		// SCALING
 		
 		// Increase scale
-		else if (key == 's') {
+		else if (key == 'm') {
 			scene[selectedIdx]->sx += s_step;
 			scene[selectedIdx]->sy += s_step;
 			scene[selectedIdx]->sz += s_step;
 			changed = true;
 		}
 		// Decrease scale
-		else if (key == 'd') {
+		else if (key == 'l') {
 			// scale must stay positive
 			scene[selectedIdx]->sx = max(0.1, scene[selectedIdx]->sx - s_step);
 			scene[selectedIdx]->sy = max(0.1, scene[selectedIdx]->sy - s_step);
@@ -252,34 +292,34 @@ void ofApp::keyPressed(int key) {
 		
 		// rotation over x
 		else if (key == 'x'){
-			scene[selectedIdx]->rx += r_steps;
+			scene[selectedIdx]->rx += r_step;
 			changed = true;
 		}
 		// rotation over y
 		else if (key == 'y'){
-			scene[selectedIdx]->ry += r_steps;
+			scene[selectedIdx]->ry += r_step;
 			changed = true;
 		}
 		// rotation over z
 		else if (key == 'z'){
-			scene[selectedIdx]->rz += r_steps;
+			scene[selectedIdx]->rz += r_step;
 			changed = true;
 		}
 		
 		
 		// inverse rotation over x
-		else if (key == 'u'){
-			scene[selectedIdx]->rx -= r_steps;
+		else if (key == 'X'){
+			scene[selectedIdx]->rx -= r_step;
 			changed = true;
 		}
 		// inverse rotation over y
-		else if (key == 'v'){
-			scene[selectedIdx]->ry -= r_steps;
+		else if (key == 'Y'){
+			scene[selectedIdx]->ry -= r_step;
 			changed = true;
 		}
 		// inverse rotation over z
-		else if (key == 'w'){
-			scene[selectedIdx]->rz -= r_steps;
+		else if (key == 'Z'){
+			scene[selectedIdx]->rz -= r_step;
 			changed = true;
 		}
 		

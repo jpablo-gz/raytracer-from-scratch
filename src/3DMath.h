@@ -383,7 +383,7 @@ public:
 
 // camera is a struct so we can alternate between parallel and perspective
 struct Camera{
-	Vec3 e; // origin
+	Vec3 e; // origin/eye
 	Vec3 d; // direction
 	int nx; // number of pixels = width
 	int ny; // number of pixels = height
@@ -404,12 +404,28 @@ struct Camera{
 	// Parallel = false / Perspective = true
 	bool p_mode;
 	
+	//world ubication
+	Vec3 world_up;
+	Vec3 target;
+	
 	// empty constructor
 	Camera() = default;
+	
+	void updateBasis() {
+		// w: opossite to view direction
+		w_vec = vec3_normal(vec3_subtraction(e, target));
+		// u: x
+		u_vec = vec3_normal(vec3_crossproduct(world_up, w_vec));
+		// v: y
+		v_vec = vec3_crossproduct(w_vec, u_vec);
+	}
 	
 	// constructor
 	Camera(Vec3 view_point, int width, int heigth, vector<float> rangeX, vector<float> rangeY, bool perspective_on = false){
 		e = view_point;
+		target = Vec3(0, 0, 0); // look at origin by default
+		world_up = Vec3(0, 1, 0);
+		
 		nx = width;
 		ny = heigth;
 		
@@ -423,6 +439,8 @@ struct Camera{
 		v_vec = {0, 1, 0};
 		
 		p_mode = perspective_on;
+		
+		updateBasis();
 	}
 	
 	//trace a ray from viewpoint to infinity, in parallel, or perspective
@@ -437,10 +455,10 @@ struct Camera{
 		if(p_mode){
 			// ro = e
 			Vec3 ro = e;
-			// rd = -d*w + u*u_vec + v*v_vec
+			// rd = -w + u*u_vec + v*v_vec
 			double d = abs(e.z);
 			Vec3 rd = vec3_sum(vec3_product(vec3_product(w_vec, -1.0), d), vec3_sum(vec3_product(u_vec, u), vec3_product(v_vec, v)));
-			
+						
 			return Ray(ro, rd, true);
 			
 		// parallel view
