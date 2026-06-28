@@ -60,6 +60,7 @@ void ofApp::setup() {
 	traceAll();
 }
 
+// Render
 void ofApp::traceAll(){
 	// ejecution time measurement
 	auto start = chrono::high_resolution_clock::now();
@@ -70,7 +71,7 @@ void ofApp::traceAll(){
 			// we make a ray for every pixel
 			Ray actual_ray = cam.ray_tracing(x, y);
 			
-			HitRecord hrec;
+			HitRecord l_hrec;
 			HitRecord closest_hit;
 			double t_max = INFINITY;
 			double t_min = 0.001;
@@ -78,11 +79,11 @@ void ofApp::traceAll(){
 			
 			for(auto object : scene){
 				// if we hit the object in pixel (x, y)
-				if(object->hit(actual_ray, t_min, t_max, hrec)){
+				if(object->hit(actual_ray, t_min, t_max, l_hrec)){
 					hit_object = true;
 					// more closer shape will be our limit for t, we dont care about shapes behind
-					t_max = hrec.t;
-					closest_hit = hrec;
+					t_max = l_hrec.t;
+					closest_hit = l_hrec;
 				}
 			}
 			
@@ -95,14 +96,33 @@ void ofApp::traceAll(){
 				Vec3 li_dir = vec3_subtraction(li_position, closest_hit.p);
 				Vec3 l = vec3_normal(li_dir);
 				
-				// normal from the hit point in the shape
-				Vec3 n = closest_hit.normal;
+				float li_dist = li_dir.magnitude();
+				// shadow rays --------------
+				Ray shadow_ray(closest_hit.p, l, true);
+				bool shadow = false;
+				HitRecord s_hrec;
 				
-				float nl_dot = vec3_dotproduct(n, l);
-				// diffuse gives us a proportion for how many ligth should we have
-				float diffuse = fmax(0.0f, nl_dot); // we cannot have negative lightning
+				// go throught all objects to see if our shadow ray hit other object
+				for(auto object : scene){
+					// if we hit the object we apply shadow in that point
+					if(object->hit(shadow_ray, 0.001, li_dist, s_hrec)){
+						shadow = true;
+						break; // we just need to know if 1 object hit
+					}
+				}
 				
-				float intensity = ka + diffuse;
+				float intensity = ka;
+				
+				if(!shadow){
+					// normal from the hit point in the shape
+					Vec3 n = closest_hit.normal;
+					
+					float nl_dot = vec3_dotproduct(n, l);
+					// diffuse gives us a proportion for how many ligth should we have
+					float diffuse = fmax(0.0f, nl_dot); // we cannot have negative lightning
+					
+					intensity += diffuse;
+				}
 				
 				// we ajust the pixel color depending on the intensity
 				ofColor pixel_color;
@@ -111,6 +131,7 @@ void ofApp::traceAll(){
 				pixel_color.b = ofClamp(closest_hit.color.b * intensity, 0, li_color[2]);
 					
 				colorPixels.setColor(x, y, pixel_color);
+				
 			}
 			else{
 				// if there isnt an object, we color the pixel as the background
