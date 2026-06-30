@@ -24,7 +24,7 @@ void ofApp::setup() {
 	// light settings: position, color and intensity
 	li_position = {0, 5, 0};
 	li_color = ofColor(255, 255, 255);
-	ka = 0.2; // intensity
+	ka = 0.2; // ambient light
 	
 	// Background color
 	Background_color = ofColor(0, 0, 0);
@@ -227,6 +227,18 @@ void ofApp::keyPressed(int key) {
 		cam.target = vec3_sum(cam.target, vec3_product(cam.u_vec, p_step));
 		cam_changed = true;
 	}
+	// move forward
+	else if (key == 'q') {
+		cam.e = vec3_sum(cam.e, vec3_product(cam.w_vec, p_step));
+		cam.target = vec3_sum(cam.target, vec3_product(cam.w_vec, p_step));
+		cam_changed = true;
+	}
+	// move backward
+	else if (key == 'e') {
+		cam.e = vec3_sum(cam.e, vec3_product(cam.w_vec, -p_step));
+		cam.target = vec3_sum(cam.target, vec3_product(cam.w_vec, -p_step));
+		cam_changed = true;
+	}
 	
 	// CAMERA ORBIT
 	
@@ -295,6 +307,16 @@ void ofApp::keyPressed(int key) {
 		// Move down
 		else if (key == OF_KEY_DOWN) {
 			scene[selectedIdx]->ty -= t_step;
+			changed = true;
+		}
+		// move front
+		else if (key == 'f'){
+			scene[selectedIdx]->tz += t_step;
+			changed = true;
+		}
+		// move back
+		else if (key == 'b'){
+			scene[selectedIdx]->tz -= t_step;
 			changed = true;
 		}
 		
