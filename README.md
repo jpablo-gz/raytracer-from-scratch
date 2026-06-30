@@ -87,7 +87,8 @@ After finding the closest intersection, the renderer casts a shadow ray toward t
 | Key | Action |
 |------|--------|
 | `p` | Toggle Perspective / Orthographic |
-| `w a s d` | Pan camera |
+| `w a s d` | Pan camera on x and y axis |
+| `q e` | Pan camera on z axis |
 | `i k` | Orbit vertically |
 | `j l` | Orbit horizontally |
 | `Shift + r` | Reset camera |
@@ -101,7 +102,8 @@ After finding the closest intersection, the renderer casts a shadow ray toward t
 | Key | Action |
 |------|--------|
 | Mouse Click | Select object |
-| Arrow Keys  | Translate object |
+| Arrow Keys  | Translate object on x and y axis |
+| `f b` | Translate object on z axis |
 | `n` / `m` | Scale Up / Down |
 | `x` `y` `z` | Rotate around X / Y / Z axis|
 | `Shift + x / y / z` | Rotate in opposite direction|
