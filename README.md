@@ -147,7 +147,7 @@ Tested on:
 ### Build
 
 ```bash
-git clone https://github.com/JPab-yeipi/Raytracer-from-scratch.git
+git clone https://github.com/JPab-yeipi/raytracer-from-scratch.git
 ```
 
 Move the project inside:
