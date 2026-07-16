@@ -1,20 +1,22 @@
 <div align="center">
 
-# 🎯 Simple CPU Ray Tracer
+<p align="center">
+    <img src="assets/raytracer_banner.png" alt="raytracer README banner">
+</p>
 
-**A CPU-based ray tracer built from scratch in C++ using openFrameworks**
-
-Implementation of the core ray tracing algorithms presented in *Fundamentals of Computer Graphics*, featuring multiple geometric primitives, Lambertian shading, shadows, object transformations, and interactive camera controls.
+Implementation of the core ray tracing algorithms, featuring multiple geometric shapes, Lambertian shading, shadows, object transformations, and interactive camera controls.
 
 <br>
 
-![C++](https://img.shields.io/badge/C%2B%2B-17-00599C?logo=c%2B%2B&logoColor=white)
-![openFrameworks](https://img.shields.io/badge/openFrameworks-0.12.1-009B3A)
-![Renderer](https://img.shields.io/badge/Renderer-CPU-orange)
-![Platform](https://img.shields.io/badge/Platform-macOS-lightgrey)
-![Status](https://img.shields.io/badge/Status-Completed-success)
+![C++](https://img.shields.io/badge/C%2B%2B_17-2f74c5?style=for-the-badge&logo=c%2B%2B&logoColor=white)
+![openFrameworks](https://img.shields.io/badge/openFrameworks_0.12.1-1f9163?style=for-the-badge&logo=openframeworks&logoColor=white)
+![Renderer](https://img.shields.io/badge/Renderer_CPU-e66e33?style=for-the-badge)
 
 </div>
+
+> **Academic Project**
+>
+> This project was developed as part of a university Computer Graphics assignment. The implementation follows the concepts presented in *Fundamentals of Computer Graphics* by Peter Shirley while being written from scratch in C++ using openFrameworks.
 
 ---
 
@@ -24,13 +26,9 @@ Implementation of the core ray tracing algorithms presented in *Fundamentals of 
     <img src="assets/render_perspective.png" width="900" alt="Final Render with perspective rays">
 </p>
 
-> **Academic Project**
->
-> This project was developed as part of a university Computer Graphics assignment. The implementation follows the concepts presented in *Fundamentals of Computer Graphics* by Peter Shirley while being written from scratch in C++ using openFrameworks.
-
 ---
 
-# 📖 Overview
+# 📖 Overview:
 
 This project implements a simple CPU ray tracer capable of rendering multiple geometric primitives with Lambertian illumination and shadow rays.
 
@@ -40,7 +38,7 @@ The primary goal of this project was to better understand the mathematics and al
 
 ---
 
-# ✨ Features and Technical Highlights
+# ✨ Features and Technical Highlights:
 
 - ✅ Perspective and Parrallel camera rays
 - ✅ Sphere intersection
@@ -70,9 +68,9 @@ The primary goal of this project was to better understand the mathematics and al
 
 ---
 
-# 🧠 How It Works
+# 🧠 How It Works:
 
-For every pixel, the renderer generates a ray from the active camera (`Camera::ray_tracing`) and tests it against every object in the scene (`Object3D::hit`).
+For every pixel, the renderer generates a ray from the active camera and checks whether it intersects with any object in the scene; if the ray strikes an object, that object in that pixel is colored on the screen.
 
 Each object stores both its transformation matrix and its inverse. Rather than transforming the geometry itself, the incoming ray is transformed into the object's local coordinate system before performing the intersection test. This allows each primitive to keep a simple analytical intersection equation while supporting arbitrary translation, rotation, and scaling.
 
@@ -80,13 +78,13 @@ After finding the closest intersection, the renderer casts a shadow ray toward t
 
 ---
 
-# 🕹️ Controls
+# 🕹️ Controls:
 
 ## Camera
 
 | Key | Action |
 |------|--------|
-| `p` | Toggle Perspective / Orthographic |
+| `p` | Toggle Perspective / Orthographic view |
 | `w a s d` | Pan camera on x and y axis |
 | `q e` | Pan camera on z axis |
 | `i k` | Orbit vertically |
@@ -111,67 +109,15 @@ After finding the closest intersection, the renderer casts a shadow ray toward t
 
 ---
 
-# 📂 Project Structure
+# 📚 What I learned:
 
-```text
-src
-├── main.cpp
-├── ofApp.cpp
-├── ofApp.h
-└── 3DMath.h
-```
+Through this project, I learned how a ray tracer works, from generating rays and detecting intersections to displaying 3D objects on the screen. I also gained more experience working with vectors, transformation matrices, and the mathematics behind 3D graphics.
 
-| File | Description |
-|------|-------------|
-| `main.cpp` | openFrameworks entry point |
-| `ofApp.cpp/.h` | Scene setup, rendering, input handling |
-| `3DMath.h` | Math library, Camera, Ray, Object3D and all primitives |
+I explored how shapes such as cubes, spheres, planes, and ellipsoids can be represented and how to calculate their intersection points with rays. The project also helped me review and improve my object-oriented programming skills by organizing the different shapes and parts of the ray tracer into individual classes.
 
 ---
 
-# 🛠️ Requirements & Setup
-
-### Requirements
-
-- C++17
-- openFrameworks **0.12.1**
-- Xcode (macOS)
-
-Tested on:
-
-- macOS
-- Apple M1 (2020)
-
----
-
-### Build
-
-```bash
-git clone https://github.com/JPab-yeipi/raytracer-from-scratch.git
-```
-
-Move the project inside:
-
-```text
-openFrameworks/apps/myApps/your_project/src/
-```
-
-Then:
-
-1. Open the `.xcodeproj`
-2. Build
-3. Run (`⌘ + R`)
-
----
-
-# 📚 References
-
-- Peter Shirley, Steve Marschner *Fundamentals of Computer Graphics*
-- Course material from Universidad Panamericana
-
----
-
-# ⚠️ Notes & Limitations
+# ⚠️ Notes & Limitations:
 
 - Rendering is performed entirely on the CPU.
 - No GPU acceleration or shaders are used.
