@@ -12,21 +12,21 @@ using namespace std;
 
 void ofApp::setup() {
 	
-	// RAYTRACING SETTINGS ---------------------------------------------------------------------------------------------------
+	// RAYTRACER SETTINGS -----------------------------------------------------------------------------------------------------
 	
-	// number of pixels: w x h
+	// window size
 	w = 640;
 	h = 480;
 	
-	// where our rays start on the perspective view
+	// rays start point
 	viewpoint = {0, 0, 1};
 	
-	// light settings: position, color and intensity
+	// light settings
 	li_position = {0, 5, 0};
 	li_color = ofColor(255, 255, 255);
-	ka = 0.2; // ambient light
+	ka = 0.2; // ambient lightning
 	
-	// Background color
+	// background color
 	Background_color = ofColor(0, 0, 0);
 	
 	// screen ranges for x and y
@@ -36,7 +36,7 @@ void ofApp::setup() {
 	// camera: parallel = false, perspective = true
 	cam = Camera(viewpoint, w, h, range_x, range_y, true);
 
-	// SHAPES IN SCENE -------------------------------------------------------------------------------------------------------
+	// SHAPES IN SCENE --------------------------------------------------------------------------------------------------------
 	
 	// Plane: Gray (0.5, 0.5, 0.5) in y = -1.4
 	scene.push_back(new Plane(Vec3(0, -1.4, 0), Vec3(0, 1, 0), ofColor(128, 128, 128)));
@@ -46,9 +46,6 @@ void ofApp::setup() {
 
 	// Cube (Extra): Green (0, 1, 0) in z < 0 and inside range x:[-2,2], y:[-1.5,1.5]
 	scene.push_back(new Cube(Vec3(-1.2, 0.0, -3.0), 1.5, 1.5, 1.5, ofColor(0, 255, 0)));
-
-	// Ellipsoid: Blue (0, 0, 1) in z > 0 between z=1 and view plane z = 0
-	//scene.push_back(new Ellipsoid(Vec3(0, 0.4, 0.4), Vec3(0.2, 0.1, 0.3), ofColor(0, 0, 255)));
 	
 	// Ellipsoid: Blue (0, 0, 1) in z > 0 and outside range x:[-2,2], y:[-1.5,1.5]
 	scene.push_back(new Ellipsoid(Vec3(-4, 2, -3), Vec3(1, 2, 1), ofColor(0, 0, 255)));
@@ -88,7 +85,6 @@ void ofApp::traceAll(){
 			}
 			
 			// apply light or shadow to the pixel depending of the point of intersection and the normal in that point
-			// data in HitRecord -------> I * (ka + kd * max(0, n.l))
 			if(hit_object){
 				// if theres an object, we color the pixel with the shape color + light
 				

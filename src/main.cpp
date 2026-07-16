@@ -1,8 +1,6 @@
 #include "ofMain.h"
 #include "ofApp.h"
 
-// DO NOT EDIT !!!!!
-
 //========================================================================
 int main( ){
 	ofSetupOpenGL(640,480,OF_WINDOW);			// Resolution: 640x480
