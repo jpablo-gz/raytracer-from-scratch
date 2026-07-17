@@ -4,13 +4,13 @@
     <img src="assets/raytracer_banner.png" alt="raytracer README banner">
 </p>
 
-Implementation of the core ray tracing algorithms, featuring multiple geometric shapes, Lambertian shading, shadows, object transformations, and interactive camera controls.
-
-<br>
-
 ![C++](https://img.shields.io/badge/C%2B%2B_17-2f74c5?style=for-the-badge&logo=c%2B%2B&logoColor=white)
 ![openFrameworks](https://img.shields.io/badge/openFrameworks_0.12.1-1f9163?style=for-the-badge&logo=openframeworks&logoColor=white)
 ![Renderer](https://img.shields.io/badge/Renderer_CPU-e66e33?style=for-the-badge)
+
+Implementation of the core ray tracing algorithms, featuring multiple geometric shapes, Lambertian shading, shadows, object transformations, and interactive camera controls.
+
+<br>
 
 </div>
 
