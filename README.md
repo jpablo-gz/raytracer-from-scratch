@@ -10,8 +10,6 @@
 
 Implementation of the core ray tracing algorithms, featuring multiple geometric shapes, Lambertian shading, shadows, object transformations, and interactive camera controls.
 
-<br>
-
 </div>
 
 ---
